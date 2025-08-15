@@ -30,7 +30,7 @@ const HOST = process.env.HOST;
 
 //* app.route('url') 
 app.route('/')
-    .get((req, res) => res.send({ method: 'GET' }))
+    .get((req, res) => res.send({ method: 'GET' }))  //! .send te expres.js de arka plande stringfy çevirdiği için bu metod kullnılıyor
     .put((req, res) => res.send({ method: 'PUT' }))
     .post((req, res) => res.send({ method: 'POST' }))
     .delete((req, res) => res.send({ method: 'DELETE' }));
