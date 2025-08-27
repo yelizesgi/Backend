@@ -26,6 +26,17 @@ const BlogCategory = mongoose.model('BlogCategory', blogCategorySchema);
 
 module.exports = { BlogCategory };
 
+
+
+// todo: BlogPost Schema
+
+
+
+
+
+
+
+
 /* ------------------------------------------------------- *
 
 //* Sample

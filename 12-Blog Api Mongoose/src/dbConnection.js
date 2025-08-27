@@ -3,22 +3,12 @@
      EXPRESSJS - BLOG Project with Mongoose
 ------------------------------------------------------- */
 
-const router = require('express').Router();
-const blogCategory = require('../controllers/blogController');
+const mongoose = require('mongoose');
 
-/* ------------------------------------------------------- */
+const dbConnection = () => {
+    mongoose.connect('mongodb://127.0.0.1:27017/blogAPI') // default db name 'test'
+        .then(() => console.log('* DB Connected *'))
+        .catch((err) => console.log('! DB Not Connected !', err))
+}
 
-// URL: /blogs ->
-
-router.route('/blogs')
-    .get(blogCategory.list)
-    .post(blogCategory.create);
-
-router.route('/blogs/:id')
-    .get(blogCategory.read)
-    .put(blogCategory.update)
-    .patch(blogCategory.update)
-    .delete(blogCategory.delete);
-
-/* ------------------------------------------------------- */
-module.exports = router;
+module.exports = dbConnection

@@ -4,7 +4,7 @@
 ------------------------------------------------------- */
 
 const router = require('express').Router();
-const blogCategory = require('../controllers/blogController');
+const { blogCategory } = require('../controllers/blogController');
 
 /* ------------------------------------------------------- */
 
@@ -19,6 +19,9 @@ router.route('/blogs/:id')
     .put(blogCategory.update)
     .patch(blogCategory.update)
     .delete(blogCategory.delete);
+
+// todo: BlogPost route
+
 
 /* ------------------------------------------------------- */
 module.exports = router;

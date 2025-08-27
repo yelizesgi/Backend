@@ -5,7 +5,7 @@
 
 const { BlogCategory } = require('../models/blogModel');
 
-module.exports = {
+module.exports.blogCategory = {
 
     list: async (req, res) => {
 
@@ -83,3 +83,9 @@ module.exports = {
     }
 
 }
+
+
+module.exports.blogPost = {
+    
+}
+// todo: BlogPost controller
