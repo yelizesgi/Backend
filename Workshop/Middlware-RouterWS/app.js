@@ -4,7 +4,7 @@
 /* ------------------------------------- */
 
 //! 1. npm init -y packet-json projeye dahil edildi
-//! 2. npm i express dorenv
+//! 2. npm i express dotenv
 
 //? 1-Projemin bir espress projesi olacağını belirtiyorum
 
@@ -46,4 +46,4 @@ app.get('/', (req, res)=>{
 
 
 //? Server ayağı kaldırılıyor
-app.listen(PORT, ()=> console.log('Running at: http://127.0.0.1: + PORT'))
+app.listen(PORT, ()=> console.log('Running at: http://127.0.0.1:' + PORT))

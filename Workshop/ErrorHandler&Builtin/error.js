@@ -14,13 +14,13 @@ const PORT = process.env.PORT || 8000;
 
 app.get('/user/:id', function (req, res, next) {
 
-    // Hata gönder ve sistemi kilitle (kodlar işlemeye devam etmez) // Block Code
-    // throw new Error('Hata oluştu.')
+    //? Hata gönder ve sistemi kilitle (kodlar işlemeye devam etmez) // Block Code
+    //? throw new Error('Hata oluştu.')
 
-    // res.send({
-    //     id: req.params.id,
-    //     message: 'Hello World'
-    // })
+    //? res.send({
+    //?     id: req.params.id,
+    //?     message: 'Hello World'
+    //? })
 
     if (isNaN(req.params.id)) {
 
