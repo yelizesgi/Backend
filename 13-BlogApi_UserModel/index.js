@@ -6,31 +6,33 @@
 const express = require('express');
 const app = express();
 
-require('dotenv').config();
+
 const PORT = process.env.PORT || 8000
 const HOST = process.env.HOST || 'localhost'
 
 /* ------------------------------------------------------- */
-// Middlewares & Configs
+//? Middlewares & Configs
+require('dotenv').config();
 
-// Accept and Parse data
+
+//? Accept and Parse data
 app.use(express.json());
 
-// DB Connection
-// const dbConnection = require('./src/dbConnection');
-// dbConnection()
+//? DB Connection
+//? const dbConnection = require('./src/dbConnection');
+//? dbConnection()
 require('./src/dbConnection')();
 
 /* ------------------------------------------------------- */
-// Routes
+//? Routes
 app.all('/', (req, res) => res.send('Welcome to Blog Api'));
 
-// Blog route
+//? Blog route
 app.use('/blogs', require('./src/routes/blogRouter'));
 app.use('/users', require('./src/routes/userRouter'));
 
 /* ------------------------------------------------------- */
-// ErrorHandler
+//? ErrorHandler
 app.use(require('./src/middlewares/errorHandler'));
 
 /* ------------------------------------------------------- */
