@@ -20,27 +20,39 @@ require('dotenv').config();
 
 const PORT = process.env.PORT ?? 8000;
 
+/* ------------------------------------- */
 
-const firstmiddle = (req, res, next) =>{
+app.get('/', (req, res, next) =>{
+    // res.send({
+    //     message: 'firstmiddle succesful'
+    // })
+    console.log('firstmiddle succesful')
+    next()
+});
+
+app.get('/', (req, res, next) => {
+
+    console.log('This is second middle success')
     res.send({
-        message: 'firstmiddle succesful'
+        message: 'This is second middle success'
     })
     next()
-}
+})
 
 
+/* ------------------------------------- */
 
 
 
 //* Routh path
 
-app.get('/', (req, res)=>{
-    console.log('Bu bir routh path')
-    res.send({
-        message: 'Hello World'
-    })
+// app.get('/', (req, res)=>{
+//     console.log('Bu bir routh path')
+//     res.send({
+//         message: 'Hello World'
+//     })
 
-})
+// })
 
 
 
