@@ -3,7 +3,7 @@
     EXPRESS - Personnel API
 ------------------------------------------------------- */
 /*
-    $ npm i express dotenv mongoose 
+    $ npm i express dotenv mongoose
     $ npm i cookie-session
 */
 
@@ -16,14 +16,45 @@ app.set("query parser", "extended");
 require("dotenv").config();
 const PORT = process.env?.PORT || 8000;
 
-const {dbcConnection} = require('./src/configs/dbConnection')
+// Db Connection:
+const { dbConnection } = require('./src/configs/dbConnection');
+dbConnection()
 
 /* ------------------------------------------------------- */
 // Accept JSON:
-app.use(express.json())
+app.use(express.json());
+
+// Cookie-Session:
+app.use(require('cookie-session')({
+    secret: process.env.SECRET_KEY
+}));
+
+// Query Handler:
+app.use(require('./src/middlewares/queryHandler'));
+
 
 /* ------------------------------------------------------- */
+// Routes
 
+// Home Path
+app.all('/', (req, res) => {
+
+    res.status(200).send({
+        error: false,
+        message: 'Welcome to Personnel API Service',
+        session: req.session
+    });
+});
+
+
+// Deparments
+app.use('/departments', require('./src/routes/department.router'));
+
+// Personnels
+app.use('/personnels', require('./src/routes/personnel.router'));
+
+// auth
+app.use('/auth', require('./src/routes/auth.router'));
 
 
 
