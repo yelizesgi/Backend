@@ -3,24 +3,25 @@
     EXPRESS - Personnel API
 ------------------------------------------------------- */
 
-const Token = require('../models/token.model');
+const Department = require('../models/department.model');
+const Personnel = require('../models/personnel.model');
 
 module.exports = {
 
     list: async (req, res) => {
 
-        const result = await res.getModelList(Token)
+        const result = await res.getModelList(Department)
 
         res.status(200).send({
             error: false,
-            details: await res.getModelListDetails(Token),
+            details: await res.getModelListDetails(Department),
             result
         });
     },
 
     create: async (req, res) => {
 
-        const result = await Token.create(req.body)
+        const result = await Department.create(req.body)
 
         res.status(201).send({
             error: false,
@@ -30,7 +31,7 @@ module.exports = {
 
     read: async (req, res) => {
 
-        const result = await Token.findOne({ _id: req.params.id });
+        const result = await Department.findOne({ _id: req.params.id });
 
         res.status(200).send({
             error: false,
@@ -40,7 +41,7 @@ module.exports = {
 
     update: async (req, res) => {
 
-        const result = await Token.findByIdAndUpdate(req.params.id, req.body, {
+        const result = await Department.findByIdAndUpdate(req.params.id, req.body, {
             runValidators: true, // run validation method 
             new: true // returns updated data
         });
@@ -53,12 +54,26 @@ module.exports = {
 
     dlt: async (req, res) => {
 
-        const result = await Token.deleteOne({ _id: req.params.id });
+        const result = await Department.deleteOne({ _id: req.params.id });
 
         res.status(result.deletedCount ? 204 : 404).send({
             error: true,
             message: "Data is not found or already deleted."
         });
     },
+
+    personnels: async (req, res) => {
+
+        // const result = await Personnel.find({departmentId: req.params.id})
+        const customFilter = { departmentId: req.params.id }
+
+        const result = await res.getModelList(Personnel, customFilter, 'departmentId')
+
+        res.status(200).send({
+            error: false,
+            details: await res.getModelListDetails(Personnel, customFilter),
+            result
+        })
+    }
 
 };
