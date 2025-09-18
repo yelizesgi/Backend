@@ -1,79 +1,70 @@
-"use strict"
+"use strict";
+/* -------------------------------------------------------
+         EXPRESSJS - Query Handler Middleware
+------------------------------------------------------- */
 
-module.exports = (req, res, next) => {
+module.exports = async (req, res, next) => {
 
     /* FILTERING & SEARCHING & SORTING & PAGINATION */
 
-    // ### FILTERING ###
 
-    // URL?filter[key1]=value1&filter[key2]=value2
+    //* FILTERING
+    // URL?filter[fieldName1]=value1&filter[fiedlName2]=value2
     const filter = req.query?.filter || {}
-    // console.log(filter)
 
-    // ### SEARCHING ###
-
-    // URL?search[key1]=value1&search[key2]=value2
-    // https://www.mongodb.com/docs/manual/reference/operator/query/regex/
+    //* SEARCHING
+    // URL?search[fieldName1]=value1&search[fiedlName2]=value2
     const search = req.query?.search || {}
-    // console.log(search)
-    // const example = { title: { $regex: 'test', $options: 'i' } } // const example = { title: /test/ }
-    for (let key in search) search[key] = { $regex: search[key], $options: 'i' } // i: case insensitive
-    // console.log(search)
 
-    // ### SORTING ###
+    for (let key in search) search[key] = { $regex: search[key], $options: 'i' }
 
-    // URL?sort[key1]=asc&sort[key2]=desc
-    // asc: A-Z - desc: Z-A
-    const sort = req.query?.sort || {}
-    // console.log(sort)
+    //* SORTING
+    // URL?sort[fieldName1]=value1&sort[fiedlName2]=value2
+    const sort = req.query?.sort || {};
 
-    // ### PAGINATION ###
+    //* PAGINATIONS:
 
-    // URL?page=3&limit=10
-    let limit = Number(req.query?.limit)
-    // console.log(limit)
-    limit = limit > 0 ? limit : Number(process.env.PAGE_SIZE || 20)
-    // console.log(typeof limit, limit)
+    // PAGE
+    // URL?page=2
+    let page = parseInt(req.query?.page);
+    page = page > 0 ? page : 1
 
-    let page = Number(req.query?.page)
-    page = page > 0 ? (page - 1) : 0 // Backend'de sayfa sayısı her zaman (page - 1)'dir.
-    // console.log(typeof page, page)
+    // LIMIT
+    // URL?limit=20
+    let limit = parseInt(req.query?.limit);
+    limit = limit > 0 ? limit : 20
 
-    let skip = Number(req.query?.skip)
-    skip = skip > 0 ? skip : (page * limit)
-    // console.log(typeof skip, skip)
+    // SKIP
+    // URL?skip=10
+    let skip = parseInt(req.query?.skip);
+    skip = skip > 0 ? skip : (page - 1) * limit;
 
-    /* FILTERING & SEARCHING & SORTING & PAGINATION */
 
-    // Run for output:
+    // GetModelList
     res.getModelList = async (Model, customFilter = {}, populate = null) => {
-        return await Model.find({ ...filter, ...search, ...customFilter }).sort(sort).skip(skip).limit(limit).populate(populate)
+        return await Model.find({ ...search, ...filter, ...customFilter }).sort(sort).skip(skip).limit(limit).populate(populate);
     }
 
-    // Details:
+    // GetModelListDetatils
     res.getModelListDetails = async (Model, customFilter = {}) => {
+        const count = await Model.countDocuments({ ...search, ...filter, ...customFilter });
 
-        const data = await Model.find({ ...filter, ...search, ...customFilter })
-
-        let details = {
+        return {
             filter,
             search,
             sort,
             skip,
             limit,
             page,
-            pages: {
-                previous: (page > 0 ? page : false),
-                current: page + 1,
-                next: page + 2,
-                total: Math.ceil(data.length / limit)
-            },
-            totalRecords: data.length,
+            totalRecords: count,
+            pages: count <= limit ? false : {
+                previos: (page > 1 ? page - 1 : false),
+                current: page,
+                next: page < Math.ceil(count / limit) ? page + 1 : false,
+                total: Math.ceil(count / limit)
+            }
         }
-        details.pages.next = (details.pages.next > details.pages.total ? false : details.pages.next)
-        if (details.totalRecords <= limit) details.pages = false
-        return details
     }
-    
-    next()
+
+    next();
 }

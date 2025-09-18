@@ -9,5 +9,6 @@ module.exports = function (password) {
       "Password must be at least 8 characters long and contain at least one special character and  at least one uppercase character",
       400,
     );
+  
   else return null;
 };

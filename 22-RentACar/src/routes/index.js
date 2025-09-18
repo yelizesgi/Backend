@@ -11,12 +11,11 @@ const router = require("express").Router();
 // auth:
 router.use("/auth", require("./auth"));
 // user:
-router.use("/user", require("./user"));
-
+router.use("/users", require("./user"));
 // car:
-router.use("/car", require("./car"));
+router.use("/cars", require("./car"));
 // reservation:
-router.use("/reservation", require("./reservation"));
+router.use("/reservations", require("./reservation"));
 
 // document:
 router.use("/document", require("./document"));

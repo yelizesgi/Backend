@@ -3,7 +3,7 @@
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 
-const Token = require('../models/token');
+const jwt = require('jsonwebtoken');
 const CustomError = require('../helpers/customError');
 
 module.exports = async (req, res, next) => {
@@ -16,9 +16,8 @@ module.exports = async (req, res, next) => {
     if (tokenArr && tokenArr[0] === 'Bearer') {
 
         jwt.verify(tokenArr[1], process.env.ACCESS_KEY, (error, accessData) => {
-
+            
             if (error) next(new CustomError('JWT Error : ' + error.message, 401));
-
             req.user = accessData ? accessData : null
 
         });

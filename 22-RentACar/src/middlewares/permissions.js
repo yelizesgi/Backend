@@ -1,8 +1,11 @@
 "use strict";
+
+
 /* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
+| FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 // Middleware: permissions
+const CustomError = require("../helpers/customError");
 const message = "Your account is not active. Please contact support.";
 
 module.exports = {
@@ -10,17 +13,15 @@ module.exports = {
     if (req.user) {
       next();
     } else {
-      res.errorStatusCode = 403;
-      throw new Error(
-        "AuthenticationError: You must be logged in to access this resource.",
+      throw new CustomError(
+        "AuthenticationError: You must be logged in to access this resource.", 403
       );
     }
   },
   isStaffOrisAdmin: (req, res, next) => {
     if (!(req.user?.isActive && (req.user.isAdmin || req.user.isStaff))) {
-      res.errorStatusCode = 403;
-      throw new Error(
-        "AuthorizationError: You must be an Admin or Staff to access this resource.",
+      throw new CustomError(
+        "AuthorizationError: You must be an Admin or Staff to access this resource.", 403
       );
     }
     next();
@@ -29,9 +30,8 @@ module.exports = {
     if (req.user && req.user.isAdmin) {
       next();
     } else {
-      res.errorStatusCode = 403;
-      throw new Error(
-        "AuthorizationError: You must be an Admin to access this resource.",
+      throw new CustomError(
+        "AuthorizationError: You must be an Admin to access this resource.", 403
       );
     }
   },
