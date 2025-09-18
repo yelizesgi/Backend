@@ -42,10 +42,10 @@ const Todo = sequelize.define('todos', {
     //     allowNull: false, // default: true // sutun verisi boş olabilir mi?
     //     unique: true, // default: false // benzersiz kayıt mı?
     //     defaultValue: 0, // Kayıt eklendiğinde default olarak ne yazılsın?
-    //     // autoIncrement: true, // default: false, // Sutun değeri her bir jayıtta otomatik olarak +1 artsın mı?
-    //     // primaryKey: true, // default: false // tablonun her bir kaydını ifade eden benzersiz numara.
-    //     // comment: 'yorum ekleyebiliriz',
-    //     // field: 'custom_field_name'
+    //?     // autoIncrement: true, // default: false, // Sutun değeri her bir jayıtta otomatik olarak +1 artsın mı?
+    //?     // primaryKey: true, // default: false // tablonun her bir kaydını ifade eden benzersiz numara.
+    //?     // comment: 'yorum ekleyebiliriz',
+    //  ?   // field: 'custom_field_name'
     // },
 
     title: {
