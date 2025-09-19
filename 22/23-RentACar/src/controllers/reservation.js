@@ -1,9 +1,12 @@
 "use strict";
 /* -------------------------------------------------------
-    | FULLSTACK TEAM | NODEJS / EXPRESS |
+| FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 
 const Reservation = require("../models/reservation");
+const CustomError = require("../helpers/customError");
+const dateValidation = require("../helpers/dateValidation");
+const Car = require("../models/car");
 
 module.exports = {
   list: async (req, res) => {
@@ -25,13 +28,14 @@ module.exports = {
     const isAdminOrStaf = req.user.isAdmin || req.user.isStaff; // Boolean
     let customFilter = { userId: req.user._id };
 
-    // if (isAdminOrStaf) {
-    //   customFilter = {}
-    // }
     isAdminOrStaf && delete customFilter.userId
 
-
-    const data = await res.getModelList(Reservation, customFilter);
+    const data = await res.getModelList(Reservation, customFilter, [
+      { path: 'userId', select: 'username firstName lastName' },
+      { path: 'carId', select: 'brand model' },
+      { path: 'updatorId', select: 'username' },
+      { path: 'creatorId', select: 'username' },
+    ]);
 
     res.status(200).send({
       error: false,
@@ -56,16 +60,44 @@ module.exports = {
     //? egerki current user admin veya staff degilse, creatorId; mustrenin id'si olmali.
     const isAdminOrStaf = req.user.isAdmin || req.user.isStaff;
     const currentUserId = req.user._id
+    const { carId } = req.body
 
+    let userId = req.body.userId
     if (!isAdminOrStaf) {
       req.body.userId = currentUserId;
+      userId = currentUserId
     };
 
+    //? Istenilen arac verilen tarih araliginda musait mi ?
+
+    const { startDate: QStartDate, endDate: QEndDate } = req.body;
+
+    const [totalDays] = dateValidation(QStartDate, QEndDate);
+
+    const isCarReseverd = await Reservation.find({
+      $or: [
+        {
+          carId,
+          startDate: { $lte: QEndDate },
+          endDate: { $gte: QStartDate }
+        },
+        {
+          userId,
+          startDate: { $lte: QEndDate },
+          endDate: { $gte: QStartDate }
+        }
+      ]
+    });
+
+    if (isCarReseverd.length > 0) throw new CustomError('The car is already reserved or User already reserved a car for given dates ');
+
+    //? amount sectigi aracin gunluk fiyatiyle kiralagi gun sayini carparak hesapla
+
+    const { pricePerDay } = await Car.findById(carId, { _id: 0, pricePerDay: 1 });
+
+    req.body.amount = pricePerDay * totalDays;
     req.body.creatorId = currentUserId;
     req.body.updatorId = currentUserId;
-
-    //todo amount sectigi aracin gunluk fiyatiyle kiralagi gun sayini carparak hesapla
-
     const data = await Reservation.create(req.body);
 
     res.status(201).send({
@@ -82,7 +114,18 @@ module.exports = {
 
     //? eger user admin veya staff degilse sadece kendisine ait olan rezervasyonu goster
 
-    const data = await Reservation.findOne({ _id: id });
+    const isAdminOrStaff = req.user.isAdmin || req.user.isStaff;
+
+    const customFilter = { userId: req.user._id, _id: req.params.id };
+
+    isAdminOrStaff && delete customFilter.userId;
+
+    const data = await Reservation.findOne(customFilter).populate([
+      { path: 'userId', select: 'username firstName lastName' },
+      { path: 'carId', select: 'brand model' },
+      { path: 'updatorId', select: 'username' },
+      { path: 'creatorId', select: 'username' },
+    ]);
 
     res.status(200).send({
       error: false,

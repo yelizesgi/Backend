@@ -4,6 +4,8 @@
 ------------------------------------------------------- */
 
 const Car = require("../models/car");
+const dateValidation = require('../helpers/dateValidation');
+const Reservation = require('../models/reservation');
 
 module.exports = {
   list: async (req, res) => {
@@ -20,15 +22,27 @@ module.exports = {
       `
     */
 
-    //? Musait araclari listele egerki kullanici musteriyse
+    const { startDate: QStartDate, endDate: QEndDate } = req.body;
 
-    let customFilter = { isPublish: true }
+    dateValidation(QStartDate, QEndDate);
+
+    //? Musait olmayan tum araclari bir array seklinde getir
+    const reservedCarIds = await Reservation.find({
+      startDate: { $lte: QEndDate },
+      endDate: { $gte: QStartDate }
+    }, { _id: 0, carId: 1 }).distinct('carId');
+
+    //? Musait araclari ve rezervasyonu olmayan araclari listele egerki kullanici musteriyse
+    const customFilter = { isPublish: true, _id: { $nin: reservedCarIds } }
 
     if (req.user.isAdmin || req.user.isStaff) {
-      customFilter = {}
+      delete customFilter.isPublish
     }
 
-    const data = await res.getModelList(Car, customFilter);
+    const data = await res.getModelList(Car, customFilter, [
+      { path: 'creatorId', select: 'username' },
+      { path: 'updatorId', select: 'username' },
+    ]);
 
     res.status(200).send({
       error: false,
@@ -70,7 +84,10 @@ module.exports = {
     */
 
 
-    const data = await Car.findOne({ _id: req.params.id });
+    const data = await Car.findOne({ _id: req.params.id }).populate([
+      { path: 'creatorId', select: 'username' },
+      { path: 'updatorId', select: 'username' },
+    ]);
 
     res.status(200).send({
       error: false,
