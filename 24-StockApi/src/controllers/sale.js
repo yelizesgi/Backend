@@ -34,7 +34,13 @@ module.exports = {
 
     create: async (req, res) => {
         /*
-            #swagger.ignore = true
+            #swagger.tags = ["Sales"]
+            #swagger.summary = "Create Sale"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema:{ $ref: "#/definitions/Sale" }
+            }
         */
 
         const result = await Sale.create(req.body);
@@ -47,7 +53,8 @@ module.exports = {
 
     read: async (req, res) => {
         /*
-            #swagger.ignore = true
+            #swagger.tags = ["Sales"]
+            #swagger.summary = "Get Single Sale"
         */
 
         const result = await Sale.findById(req.params.id);
@@ -60,7 +67,13 @@ module.exports = {
 
     update: async (req, res) => {
         /*
-            #swagger.ignore = true
+            #swagger.tags = ["Sales"]
+            #swagger.summary = "Update Sale"
+            #swagger.parameters['body'] = {
+                in: 'body',
+                required: true,
+                schema:{ $ref: "#/definitions/Sale" }
+            }
         */
 
         const result = await Sale.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, new: true });
@@ -75,7 +88,8 @@ module.exports = {
 
     dlt: async (req, res) => {
         /*
-            #swagger.ignore = true
+            #swagger.tags = ["Sales"]
+            #swagger.summary = "Delete Single Sale"
         */
 
         const result = await Sale.findByIdAndDelete(req.params.id)
