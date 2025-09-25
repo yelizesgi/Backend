@@ -53,7 +53,7 @@ module.exports = {
 
     read: async (req, res) => {
         /*
-            #swagger.tags = ["Categorys"]
+            #swagger.tags = ["Categories"]
             #swagger.summary = "Get Single Category"
         */
 
@@ -67,7 +67,7 @@ module.exports = {
 
     update: async (req, res) => {
         /*
-            #swagger.tags = ["Categoryies"]
+            #swagger.tags = ["Categories"]
             #swagger.summary = "Update Category"
             #swagger.parameters['body'] = {
                 in: 'body',
@@ -88,7 +88,7 @@ module.exports = {
 
     dlt: async (req, res) => {
         /*
-            #swagger.tags = ["Categorys"]
+            #swagger.tags = ["Categories"]
             #swagger.summary = "Delete Single Category"
         */
 

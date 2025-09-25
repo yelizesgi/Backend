@@ -1,15 +1,15 @@
-"use strict"
+"use strict";
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 
-const Purchase = require('../models/purchase');
-const CustomError = require('../helpers/customError');
+const Purchase = require("../models/purchase");
+const CustomError = require("../helpers/customError");
+const Product = require("../models/product");
 
 module.exports = {
-
-    list: async (req, res) => {
-        /*
+  list: async (req, res) => {
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "List Purchases"
             #swagger.description = `
@@ -23,17 +23,22 @@ module.exports = {
             `
         */
 
-        const result = await res.getModelList(Purchase);
+    const result = await res.getModelList(Purchase, {}, [
+      "userId",
+      "firmId",
+      "brandId",
+      "productId",
+    ]);
 
-        res.status(200).send({
-            error: false,
-            details: await res.getModelListDetails(Purchase),
-            result
-        });
-    },
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Purchase),
+      result,
+    });
+  },
 
-    create: async (req, res) => {
-        /*
+  create: async (req, res) => {
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "Create Purchase"
             #swagger.parameters['body'] = {
@@ -43,30 +48,52 @@ module.exports = {
             }
         */
 
-        const result = await Purchase.create(req.body);
+    const { productId } = req.body;
 
-        res.status(201).send({
-            error: false,
-            result
-        });
-    },
+    const { brandId } = await Product.findById(productId).select(
+      "brandId -_id"
+    ); // {brandId}
 
-    read: async (req, res) => {
-        /*
+    if (!brandId)
+      throw new CustomError("The product you are looking is not found.", 404);
+
+    req.body.userId = req.user._id;
+    req.body.brandId = brandId;
+
+    const result = await Purchase.create(req.body);
+
+    if (result)
+      await Product.findByIdAndUpdate(productId, {
+        $inc: { quantity: result.quantity },
+      });
+
+    res.status(201).send({
+      error: false,
+      result,
+    });
+  },
+
+  read: async (req, res) => {
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "Get Single Purchase"
         */
 
-        const result = await Purchase.findById(req.params.id);
+    const result = await Purchase.findById(req.params.id).populate([
+      "userId",
+      "firmId",
+      "brandId",
+      "productId",
+    ]);
 
-        res.status(200).send({
-            error: false,
-            result
-        });
-    },
+    res.status(200).send({
+      error: false,
+      result,
+    });
+  },
 
-    update: async (req, res) => {
-        /*
+  update: async (req, res) => {
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "Update Purchase"
             #swagger.parameters['body'] = {
@@ -76,29 +103,58 @@ module.exports = {
             }
         */
 
-        const result = await Purchase.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, new: true });
+    let currentPurchase;
 
-        if (!result) throw new CustomError("Update failed, data is not found or already updated", 404);
+    if (req.body.quantity) {
+      currentPurchase = await Purchase.findById(req.params.id);
+    }
 
-        res.status(202).send({
-            error: false,
-            result
-        });
-    },
+    const result = await Purchase.findByIdAndUpdate(req.params.id, req.body, {
+      runValidators: true,
+      new: true,
+    });
 
-    dlt: async (req, res) => {
-        /*
+    if (!result)
+      throw new CustomError(
+        "Update failed, data is not found or already updated",
+        404
+      );
+
+    if (req.body.quantity) {
+      // calculate differnce
+      const difference = req.body.quantity - currentPurchase.quantity;
+
+      // update product with difference
+      await Product.findByIdAndUpdate(currentPurchase.productId, {
+        $inc: { quantity: difference }
+      });
+    }
+
+    res.status(202).send({
+      error: false,
+      result,
+    });
+  },
+
+  dlt: async (req, res) => {
+    /*
             #swagger.tags = ["Purchases"]
             #swagger.summary = "Delete Single Purchase"
         */
 
-        const result = await Purchase.findByIdAndDelete(req.params.id)
+    const result = await Purchase.findByIdAndDelete(req.params.id);
 
-        if (!result) throw new CustomError("Delete failed, data is not found or already deleted", 404);
+    if (!result)
+      throw new CustomError(
+        "Delete failed, data is not found or already deleted",
+        404
+      );
 
-        res.status(200).send({
-            error: false,
-            result
-        });
-    },
-}
+    //todo purchase silinirse product update etmeli
+
+    res.status(200).send({
+      error: false,
+      result,
+    });
+  },
+};

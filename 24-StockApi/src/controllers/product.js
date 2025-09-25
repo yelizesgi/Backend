@@ -1,15 +1,14 @@
-"use strict"
+"use strict";
 /* -------------------------------------------------------
     | FULLSTACK TEAM | NODEJS / EXPRESS |
 ------------------------------------------------------- */
 
-const Product = require('../models/product');
-const CustomError = require('../helpers/customError');
+const Product = require("../models/product");
+const CustomError = require("../helpers/customError");
 
 module.exports = {
-
-    list: async (req, res) => {
-        /*
+  list: async (req, res) => {
+    /*
             #swagger.tags = ["Products"]
             #swagger.summary = "List Products"
             #swagger.description = `
@@ -23,17 +22,20 @@ module.exports = {
             `
         */
 
-        const result = await res.getModelList(Product);
+    const result = await res.getModelList(Product, {}, [
+      "categoryId",
+      "brandId",
+    ]);
 
-        res.status(200).send({
-            error: false,
-            details: await res.getModelListDetails(Product),
-            result
-        });
-    },
+    res.status(200).send({
+      error: false,
+      details: await res.getModelListDetails(Product),
+      result,
+    });
+  },
 
-    create: async (req, res) => {
-        /*
+  create: async (req, res) => {
+    /*
             #swagger.tags = ["Products"]
             #swagger.summary = "Create Product"
             #swagger.parameters['body'] = {
@@ -43,30 +45,33 @@ module.exports = {
             }
         */
 
-        const result = await Product.create(req.body);
+    const result = await Product.create(req.body);
 
-        res.status(201).send({
-            error: false,
-            result
-        });
-    },
+    res.status(201).send({
+      error: false,
+      result,
+    });
+  },
 
-    read: async (req, res) => {
-        /*
+  read: async (req, res) => {
+    /*
             #swagger.tags = ["Products"]
             #swagger.summary = "Get Single Product"
         */
 
-        const result = await Product.findById(req.params.id);
+    const result = await Product.findById(req.params.id).populate([
+      "categoryId",
+      "brandId",
+    ]);
 
-        res.status(200).send({
-            error: false,
-            result
-        });
-    },
+    res.status(200).send({
+      error: false,
+      result,
+    });
+  },
 
-    update: async (req, res) => {
-        /*
+  update: async (req, res) => {
+    /*
             #swagger.tags = ["Products"]
             #swagger.summary = "Update Product"
             #swagger.parameters['body'] = {
@@ -76,29 +81,40 @@ module.exports = {
             }
         */
 
-        const result = await Product.findByIdAndUpdate(req.params.id, req.body, { runValidators: true, new: true });
+    const result = await Product.findByIdAndUpdate(req.params.id, req.body, {
+      runValidators: true,
+      new: true,
+    });
 
-        if (!result) throw new CustomError("Update failed, data is not found or already updated", 404);
+    if (!result)
+      throw new CustomError(
+        "Update failed, data is not found or already updated",
+        404
+      );
 
-        res.status(202).send({
-            error: false,
-            result
-        });
-    },
+    res.status(202).send({
+      error: false,
+      result,
+    });
+  },
 
-    dlt: async (req, res) => {
-        /*
+  dlt: async (req, res) => {
+    /*
             #swagger.tags = ["Products"]
             #swagger.summary = "Delete Single Product"
         */
 
-        const result = await Product.findByIdAndDelete(req.params.id)
+    const result = await Product.findByIdAndDelete(req.params.id);
 
-        if (!result) throw new CustomError("Delete failed, data is not found or already deleted", 404);
+    if (!result)
+      throw new CustomError(
+        "Delete failed, data is not found or already deleted",
+        404
+      );
 
-        res.status(200).send({
-            error: false,
-            result
-        });
-    },
-}
+    res.status(200).send({
+      error: false,
+      result,
+    });
+  },
+};
